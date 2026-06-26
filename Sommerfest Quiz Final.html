@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sommerfest 2026: Das große Studien-Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+
+        :root {
+            --bg-color: #07ba57;
+            --card-bg: #ffffff;
+            --text-color: #000000;
+            --border-width: 4px;
+            --correct-bg: #d4edda;
+            --wrong-bg: #ff4d4d;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+
+        #quiz-app {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: var(--border-width) solid var(--text-color);
+            border-radius: 20px;
+            padding: 35px 25px;
+            box-shadow: 12px 12px 0px var(--text-color);
+            width: 100%;
+            position: relative;
+        }
+
+        /* Intro Screen */
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        /* Quiz Screen Elements */
+        .q-header {
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            color: #555;
+        }
+
+        .q-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .q-context {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: left;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 18px;
+            border-radius: 12px;
+            border: 2px solid var(--text-color);
+        }
+
+        /* Options */
+        .options-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: var(--card-bg);
+            border: 3px solid var(--text-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            color: var(--text-color);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .option-btn strong {
+            margin-right: 12px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            min-width: 20px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translate(-3px, -3px);
+            box-shadow: 4px 4px 0px var(--text-color);
+            background: #f4f4f4;
+        }
+
+        /* Top Action Area (Feedback + Next Button) */
+        #top-action-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 3px dashed var(--text-color);
+            padding-bottom: 25px;
+        }
+
+        .feedback-box {
+            padding: 20px;
+            border: 3px solid var(--text-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .feedback-box.correct { background: var(--correct-bg); color: black; }
+        .feedback-box.wrong { background: var(--wrong-bg); color: white; }
+
+        .btn-primary {
+            background: var(--text-color);
+            color: #fff;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+
+        .btn-primary:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px solid var(--text-color);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--text-color);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Result Screen */
+        .result-score { font-size: 5rem; font-weight: 900; margin: 15px 0; color: var(--text-color); }
+        .result-tier { font-size: 1.6rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; margin-bottom: 15px;}
+
+        /* Logo Footer */
+        .footer-logo {
+            margin-top: 40px;
+            max-width: 160px;
+            height: auto;
+            cursor: pointer;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 480px) {
+            .card { padding: 30px 20px; }
+            h1 { font-size: 1.8rem; }
+            .q-text { font-size: 1.5rem; }
+            .q-context { font-size: 1.05rem; padding: 15px;}
+            .option-btn { font-size: 1rem; padding: 15px;}
+        }
+    </style>
+</head>
+<body>
+
+<div id="quiz-app">
+    <!-- Intro Screen -->
+    <div id="screen-intro" class="card">
+        <h1>Sommerfest 2026:<br>Das große Studien-Quiz</h1>
+        <p class="subtitle">
+            Klingt logisch. Stimmt aber nicht immer!<br><br>8 überraschende Fragen zu klinischen Studien und unseren Indikationen.
+        </p>
+        <button class="btn-primary" onclick="startQuiz()">Quiz starten</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="screen-quiz" class="card hidden">
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        
+        <!-- Feedback & Button tauchen HIER OBEN auf -->
+        <div id="top-action-area" class="hidden">
+            <div id="feedback" class="feedback-box"></div>
+            <button id="btn-next" class="btn-primary" onclick="handleNext()">Nächste Frage</button>
+        </div>
+
+        <div id="q-header" class="q-header">FRAGE 1 VON 8</div>
+        <div id="q-text" class="q-text">Frage lädt...</div>
+        <div id="q-context" class="q-context">Context Text</div>
+        
+        <div id="options" class="options-container"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="screen-result" class="card hidden" style="text-align: center;">
+        <h2 style="font-size: 1.2rem; text-transform: uppercase; font-weight: 800; color: #555;">Dein Ergebnis</h2>
+        <div id="result-score" class="result-score">0/8</div>
+        <div id="result-tier" class="result-tier">Ergebnis</div>
+        <p id="result-desc" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 30px;"></p>
+        
+        <button class="btn-primary" style="margin-top: 10px;" onclick="location.reload()">Nochmal spielen</button>
+    </div>
+
+    <!-- Clickable Logo im grünen Bereich -->
+    <a href="https://hvivo.com" target="_blank">
+        <img src="https://hvivo.com/hubfs/hvivo-logo.svg" alt="hVIVO Logo" class="footer-logo">
+    </a>
+</div>
+
+<script>
+    const quizData = [
+        {
+            q: "Wie war das möglich?",
+            context: "Contergan (ein thalidomidhaltiges Beruhigungs- und Schlafmittel, das wegen schwerer Fehlbildungen bei Neugeborenen zu einem der größten Arzneimittelskandale Deutschlands wurde) kam 1957 in Westdeutschland auf den Markt.",
+            options: [
+                "Das Präparat hatte alle damals vorgeschriebenen Phase-III-Studien erfolgreich bestanden.",
+                "Vor der Markteinführung war noch kein mit heutigen Standards vergleichbarer Nachweis von Wirksamkeit und Sicherheit vorgeschrieben.",
+                "Die Risiken in der Schwangerschaft waren bekannt, wurden aber als sehr selten akzeptiert.",
+                "Das Präparat war eigentlich nur für Männer zugelassen."
+            ],
+            correct: 1,
+            explanation: "Die regulatorische Welt, die für uns heute selbstverständlich ist, existierte damals noch nicht. Die Contergan-Katastrophe wurde später zu einem wichtigen Auslöser für strengere Arzneimittelregeln in Deutschland."
+        },
+        {
+            q: "Welche Aussage über bakterielle Vaginose stimmt am ehesten?",
+            context: "",
+            options: [
+                "Sie ist meistens ein Zeichen mangelnder Körperpflege.",
+                "Je häufiger man die Vagina von innen reinigt, desto schneller normalisiert sich die Vaginalflora.",
+                "Es handelt sich um eine Veränderung des bakteriellen Gleichgewichts; Intimspülungen können dieses Gleichgewicht zusätzlich stören.",
+                "Sie beweist automatisch, dass ein Partner untreu war."
+            ],
+            correct: 2,
+            explanation: "Bakterielle Vaginose hat nichts mit „Unsauberkeit“ zu tun. Aggressive Reinigung oder Intimspülungen können die natürliche Vaginalflora sogar zusätzlich beeinträchtigen."
+        },
+        {
+            q: "Welche Zuordnung ist grundsätzlich am plausibelsten?",
+            context: "Zwei Studien sollen in Deutschland starten:\n1. Eine Tablette mit einem chemisch hergestellten Wirkstoff gegen MASH.\n2. Ein monoklonaler Antikörper gegen Autoimmunhepatitis.",
+            options: [
+                "Beide gehen zum BfArM, weil es in beiden Studien um die Leber geht.",
+                "Beide gehen zum PEI, weil es klinische Studien sind.",
+                "Die Tablette zum BfArM, der monoklonale Antikörper zum PEI.",
+                "Darüber entscheidet ausschließlich die Ethikkommission."
+            ],
+            correct: 2,
+            explanation: "Nicht das untersuchte Organ entscheidet, sondern vor allem die Art des Arzneimittels. Monoklonale Antikörper gehören in Deutschland grundsätzlich zum Zuständigkeitsbereich des PEI."
+        },
+        {
+            q: "Wie nennt man das am besten?",
+            context: "Eine Person mit Typ-2-Diabetes verändert ihren Lebensstil und nimmt deutlich ab. Der HbA1c liegt anschließend mindestens drei Monate ohne Diabetesmedikamente unter 6,5 Prozent.",
+            options: [
+                "Eine nachträglich erkannte Fehldiagnose",
+                "Remission",
+                "Dauerhafte Heilung",
+                "Das ist bei Typ-2-Diabetes grundsätzlich unmöglich."
+            ],
+            correct: 1,
+            explanation: "Eine Remission von Typ-2-Diabetes ist möglich. Sie bedeutet aber nicht automatisch eine endgültige Heilung – regelmäßige Kontrollen bleiben wichtig."
+        },
+        {
+            q: "Warum kam es zu den Reaktionen?",
+            context: "2006 erhielten sechs gesunde Männer TGN1412 (einen experimentellen monoklonalen Antikörper). Die Anfangsdosis lag weit unter der in Tierversuchen als unbedenklich betrachteten Dosis. Trotzdem entwickelten alle sechs lebensbedrohliche Reaktionen.",
+            options: [
+                "Die Prüfsubstanz war mit Bakterien verunreinigt.",
+                "Die Probanden hatten ihre Vorerkrankungen verschwiegen.",
+                "Die Tiermodelle unterschätzten die extrem starke Reaktion des menschlichen Immunsystems.",
+                "Die Teilnehmer erhielten versehentlich die hundertfache Dosis."
+            ],
+            correct: 2,
+            explanation: "Eine rechnerisch sehr niedrige Dosis ist nicht automatisch biologisch schwach. Beim Menschen löste der Antikörper eine massive Immunreaktion aus, die durch die verwendeten Tiermodelle nicht zuverlässig vorhergesagt worden war."
+        },
+        {
+            q: "Hat sich gesundheitlich überhaupt schon etwas verändert?",
+            context: "Eine Person mit Adipositas verliert acht Prozent ihres Ausgangsgewichts, liegt laut BMI aber weiterhin im Bereich Adipositas.",
+            options: [
+                "Nein. Gesundheitliche Vorteile beginnen erst beim Normalgewicht.",
+                "Ja. Bereits eine Gewichtsreduktion von etwa fünf bis zehn Prozent kann Blutdruck, Blutzucker und weitere Risikofaktoren verbessern.",
+                "Nur wenn gleichzeitig mindestens 20 Kilogramm verloren wurden.",
+                "Nein. Der Körper reagiert ausschließlich auf die endgültige BMI-Kategorie."
+            ],
+            correct: 1,
+            explanation: "Gesundheit ist kein Alles-oder-nichts-Spiel. Messbare Verbesserungen können lange vor dem Erreichen eines sogenannten Normalgewichts beginnen."
+        },
+        {
+            q: "Welche Regelung würde bei einer Ethikkommission wahrscheinlich die meisten Fragen auslösen?",
+            context: "Eine Studie umfasst mehrere stationäre Aufenthalte und bietet insgesamt 4.000 Euro Aufwandsentschädigung.",
+            options: [
+                "Die Höhe der Aufwandsentschädigung wird in der Teilnehmerinformation genannt.",
+                "Die Vergütung wird entsprechend den absolvierten Studienteilen anteilig ausgezahlt.",
+                "Die gesamte Summe wird nur ausgezahlt, wenn du wirklich alle Visiten abschließt.",
+                "Fahrtkosten werden zusätzlich erstattet."
+            ],
+            correct: 2,
+            explanation: "Eine hohe Aufwandsentschädigung ist nicht automatisch problematisch. Kritisch wird es, wenn Teilnehmende bei einem vorzeitigen Ausstieg auch die bereits erworbene Vergütung verlieren würden."
+        },
+        {
+            q: "Welche Erklärung passt am besten?",
+            context: "Beim Arzt liegt dein Blutdruck bei 128/82 mmHg. Zu Hause misst du über mehrere Tage jedoch regelmäßig Werte um 145/92 mmHg.",
+            options: [
+                "Die Werte zu Hause spielen keine Rolle, weil Messungen in der Arztpraxis immer genauer sind.",
+                "Das könnte eine maskierte Hypertonie sein: Der Blutdruck wirkt beim Arzt normal, ist im Alltag aber erhöht.",
+                "Das ist ein klassischer Weißkitteleffekt.",
+                "Ohne Kopfschmerzen oder Schwindel kann es kein Bluthochdruck sein."
+            ],
+            correct: 1,
+            explanation: "Bei einer maskierten Hypertonie bleiben erhöhte Alltagswerte in der Arztpraxis verborgen. Deshalb können korrekt durchgeführte Heimmessungen oder eine 24-Stunden-Messung entscheidend sein."
+        }
+    ];
+
+    const labels = ["A.", "B.", "C.", "D."];
+    let currentQ = 0;
+    let score = 0;
+
+    function startQuiz() {
+        document.getElementById('screen-intro').classList.add('hidden');
+        document.getElementById('screen-quiz').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const data = quizData[currentQ];
+        
+        // UI Reset
+        document.getElementById('top-action-area').classList.add('hidden');
+        
+        // Progress
+        const progressPercent = ((currentQ) / quizData.length) * 100;
+        document.getElementById('progress-bar').style.width = progressPercent === 0 ? '5%' : progressPercent + '%';
+
+        // Texte füllen
+        document.getElementById('q-header').innerText = `FRAGE ${currentQ + 1} VON ${quizData.length}`;
+        document.getElementById('q-text').innerText = data.q;
+        
+        const contextDiv = document.getElementById('q-context');
+        if(data.context && data.context.trim() !== "") {
+            contextDiv.innerText = data.context;
+            contextDiv.classList.remove('hidden');
+        } else {
+            contextDiv.classList.add('hidden');
+        }
+
+        // Optionen rendern
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        
+        data.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<strong>${labels[idx]}</strong> <span>${opt}</span>`;
+            btn.onclick = () => checkAnswer(idx);
+            optionsDiv.appendChild(btn);
+        });
+        
+        // Scroll nach oben bei neuer Frage
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function checkAnswer(idx) {
+        const data = quizData[currentQ];
+        const feedback = document.getElementById('feedback');
+        const btns = document.querySelectorAll('.option-btn');
+        
+        btns.forEach(b => b.disabled = true);
+
+        if(idx === data.correct) {
+            score++;
+            feedback.innerHTML = "<strong>✅ RICHTIG!</strong><br><br>" + data.explanation;
+            feedback.className = "feedback-box correct";
+            btns[idx].style.background = "var(--correct-bg)";
+        } else {
+            feedback.innerHTML = "<strong>❌ FALSCH</strong><br><br>" + data.explanation;
+            feedback.className = "feedback-box wrong";
+            btns[idx].style.background = "var(--wrong-bg)";
+            btns[idx].style.color = "white";
+        }
+
+        // Zeige Feedback & Button ganz oben
+        const btnNext = document.getElementById('btn-next');
+        if (currentQ === quizData.length - 1) {
+            btnNext.innerText = "Ergebnis anzeigen";
+        } else {
+            btnNext.innerText = "Nächste Frage";
+        }
+        
+        document.getElementById('top-action-area').classList.remove('hidden');
+        
+        // Automatisch nach oben scrollen, damit man den Button sofort sieht!
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function handleNext() {
+        currentQ++;
+        if(currentQ < quizData.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('screen-quiz').classList.add('hidden');
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('screen-result').classList.remove('hidden');
+        
+        document.getElementById('result-score').innerText = score + " / 8";
+        
+        const tier = document.getElementById('result-tier');
+        const desc = document.getElementById('result-desc');
+
+        if(score <= 2) {
+            tier.innerText = "MUTIGER FIRST-IN-HUMAN-PROBAND";
+            desc.innerText = "Du bist eingestiegen, bevor alle Risiken vollständig bekannt waren.";
+        } else if(score <= 4) {
+            tier.innerText = "STUDIEN-SCOUT";
+            desc.innerText = "Du erkennst bereits, wenn eine zu einfache Antwort verdächtig klingt.";
+        } else if(score <= 6) {
+            tier.innerText = "CLINICAL-TRIAL-DETEKTIV";
+            desc.innerText = "Mythen, Diagnosen und Behörden können dich nicht so leicht täuschen.";
+        } else if(score === 7) {
+            tier.innerText = "REGULATORY MASTERMIND";
+            desc.innerText = "Nur eine Frage hat es durch dein persönliches Review geschafft.";
+        } else {
+            tier.innerText = "LEBENDE BUNDESOBERBEHÖRDE";
+            desc.innerText = "BfArM und PEI möchten kurz deine Einschätzung hören.";
+        }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
